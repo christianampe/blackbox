@@ -31,12 +31,12 @@ public protocol Blackbox {
 
 // MARK: - Default Implementation
 extension Blackbox {
-    static func print(message: Any...,
-                      feature: Feature,
-                      priority: BlackboxPriority = .debug,
-                      file: String = #file,
-                      function: String = #function,
-                      line: Int = #line) {
+    public static func print(message: Any,
+                             feature: Feature,
+                             priority: BlackboxPriority = .debug,
+                             file: String = #file,
+                             function: String = #function,
+                             line: Int = #line) {
         
         // A `DEBUG` preprocessor macro which will strip print calls from all environments except `DEBUG`.
         #if DEBUG
