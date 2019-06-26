@@ -33,7 +33,7 @@ public protocol Blackbox {
 extension Blackbox {
     static func print(message: Any...,
                       feature: Feature,
-                      priority: BlackboxPriority,
+                      priority: BlackboxPriority = .debug,
                       file: String = #file,
                       function: String = #function,
                       line: Int = #line) {
