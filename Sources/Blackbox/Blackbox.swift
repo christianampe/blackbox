@@ -4,7 +4,7 @@
 
 import Foundation
 
-public protocol Blackbox {
+private protocol BlackboxInterface {
     
     /// A list of features to be logged in the application.
     associatedtype Feature: BlackboxFeature
@@ -21,26 +21,26 @@ public protocol Blackbox {
     /// - Parameter file: The file from where this logging method was called.
     /// - Parameter function: The function from which this logging method was called.
     /// - Parameter line: The line where this logging method was called.
-    static func print(message: Any...,
-                      feature: Feature,
-                      priority: BlackboxPriority,
-                      file: String,
-                      function: String,
-                      line: Int)
+    func print(message: Any...,
+               feature: Feature,
+               priority: BlackboxPriority,
+               file: String,
+               function: String,
+               line: Int)
 }
 
 // MARK: - Default Implementation
-extension Blackbox {
-    public static func print(message: Any,
-                             feature: Feature,
-                             priority: BlackboxPriority = .debug,
-                             file: String = #file,
-                             function: String = #function,
-                             line: Int = #line) {
+public struct Blackbox<Feature: BlackboxFeature>: BlackboxInterface {
+    public func print(message: Any...,
+                      feature: Feature,
+                      priority: BlackboxPriority = .debug,
+                      file: String = #file,
+                      function: String = #function,
+                      line: Int = #line) {
         
         // A `DEBUG` preprocessor macro which will strip print calls from all environments except `DEBUG`.
         #if DEBUG
-
+        
         // Ensure this feature should be logged, otherwise bail.
         guard feature.shouldLog else {
             return
@@ -68,8 +68,8 @@ private extension Blackbox {
     ///
     /// - Parameter priority: Priority of the log to be displayed to the user.
     /// - Parameter log: The current log to be mutated.
-    static func add(priority: BlackboxPriority,
-                    to log: inout String) {
+    func add(priority: BlackboxPriority,
+             to log: inout String) {
         
         log += "[\(priority.description)]\n"
     }
@@ -79,8 +79,8 @@ private extension Blackbox {
     ///
     /// - Parameter location: Location where the statement was called.
     /// - Parameter log: The current log to be mutated.
-    static func add(location: (file: String, function: String, line: Int),
-                    to log: inout String) {
+    func add(location: (file: String, function: String, line: Int),
+             to log: inout String) {
         
         log += "\(name(ofFile: location.file)).\(location.function):\(location.line)\n"
     }
@@ -90,8 +90,8 @@ private extension Blackbox {
     ///
     /// - Parameter objects: Objects to be textually represented in a log. Separated by a new line.
     /// - Parameter log: The current log to be mutated.
-    static func add(message objects: Any...,
-                    to log: inout String) {
+    func add(message objects: Any...,
+        to log: inout String) {
         
         for object in objects {
             log += "\(object)\n"
@@ -108,7 +108,7 @@ private extension Blackbox {
     ///
     /// - Parameter file: Name of a file to be modified.
     /// - Returns: The directory stripped pure file name.
-    static func name(ofFile file: String) -> String {
+    func name(ofFile file: String) -> String {
         guard let lastPart = file.components(separatedBy: "/").last else {
             return ""
         }
